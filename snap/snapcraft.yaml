@@ -1,5 +1,5 @@
 name: makemkv
-version: 1.10.8
+version: '1.10.9'
 summary: Backup your Bluray discs
 description: |
   Backup your Bluray discs - Console only, currently.
@@ -52,7 +52,7 @@ parts:
   makemkv-oss:
     after: [desktop-qt4, libav, snapcraft-preload]
     plugin: autotools
-    source: http://www.makemkv.com/download/makemkv-oss-1.10.8.tar.gz
+    source: http://www.makemkv.com/download/makemkv-oss-$SNAPCRAFT_PROJECT_VERSION.tar.gz
     configflags:
       - --prefix=/usr
     build-packages:
@@ -66,7 +66,7 @@ parts:
   
   makemkv-bin:
     plugin: make
-    source: http://www.makemkv.com/download/makemkv-bin-1.10.8.tar.gz
+    source: http://www.makemkv.com/download/makemkv-bin-$SNAPCRAFT_PROJECT_VERSION.tar.gz
     prepare: |
       mkdir tmp && touch tmp/eula_accepted
       execstack -c bin/amd64/makemkvcon

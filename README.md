@@ -1,7 +1,7 @@
 <h1 align="center">
   <img src="makemkv-256.png" alt="MakeMKV">
   <br />
-  [Project]
+  MakeMKV
 </h1>
 
 <p align="center"><b>This is the snap for MakeMKV</b>, <i>"Backup your Bluray and DVD discs"</i>. It works on Ubuntu, Fedora, Debian, and other major Linux

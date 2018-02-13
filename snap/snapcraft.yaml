@@ -1,70 +1,99 @@
 name: makemkv
-version: '1.10.9'
-summary: Backup your Bluray discs
+version: '1.12.0'
+summary: Backup your Bluray and DVD discs
 description: |
-  Backup your Bluray discs - Console only, currently.
-  Run makemkv.makemkvcon in a terminal to use.
+  Backup your Bluray and DVD discs
 
 grade: devel
 confinement: strict
 
 apps:
-  # makemkv:
-  #   command: desktop-launch $SNAP/bin/snapcraft-preload $SNAP/usr/bin/makemkv
-  #   plugs:
-  #     - account-control
-  #     - desktop
-  #     - home
-  #     - opengl
-  #     - optical-drive
-  #     - process-control
-  #     - removable-media
-  #     - wayland
-  #     - x11
-  #   environment:
-  #     MAKEMKVCON: $SNAP/command-makemkvcon.wrapper
-  
-  makemkvcon:
-    command: snapcraft-preload $SNAP/usr/bin/makemkvcon
+  makemkv:
+    command: desktop-launch $SNAP/usr/bin/makemkv
     plugs:
-      - home
-      - optical-drive
-      - process-control
-      - removable-media
+    # - account-control
+    - desktop
+    - desktop-legacy
+    - gsettings
+    - home
+    - opengl
+    - optical-drive
+    - process-control
+    - removable-media
+    - wayland
+    - x11
+    environment:
+      MAKEMKVCON: $SNAP/usr/bin/makemkvcon
+      JAVA_HOME: $SNAP/usr
+
+  makemkvcon:
+    command: usr/bin/makemkvcon
+    environment:
+      JAVA_HOME: $SNAP/usr
+    plugs:
+    - hardware-observe
+    - home
+    - optical-drive
+    - process-control
+    - removable-media
 
 parts:
   libav:
     plugin: autotools
     source: http://ffmpeg.org/releases/ffmpeg-3.4.tar.bz2
     configflags:
-      - --prefix=/usr
-      - --enable-pic
-      - --disable-shared
-      - --enable-libfdk-aac
-      - --disable-cuda
-      - --disable-cuvid
+    - --prefix=/usr
+    - --enable-pic
+    - --disable-shared
+    - --enable-libfdk-aac
+    - --disable-cuda
+    - --disable-cuvid
     build-packages:
-      - libfdk-aac-dev
-      - yasm
+    - libfdk-aac-dev
+    - yasm
+    stage-packages:
+    - libfdk-aac0
+    - libxcb-shape0
     prime:
-      - -*
-  
+    - -usr/lib/**/*.a
+
+  patches:
+    plugin: dump
+    source: patches
+    prime:
+    - -*
+
   makemkv-oss:
-    after: [desktop-qt4, libav, snapcraft-preload]
+    after: [patches, desktop-qt4, libav, snapcraft-preload]
     plugin: autotools
     source: http://www.makemkv.com/download/makemkv-oss-$SNAPCRAFT_PROJECT_VERSION.tar.gz
+    prepare: |
+      patch -Np1 < $SNAPCRAFT_STAGE/patch.diff
     configflags:
-      - --prefix=/usr
+    # - --prefix=/snap/$SNAPCRAFT_PROJECT_NAME/current/usr
+    - --prefix=/usr
     build-packages:
-      - libexpat1-dev
-      - libgl1-mesa-dev
-      - libqt4-dev
-      - libssl-dev
+    - libexpat1-dev
+    - libgl1-mesa-dev
+    - libqt4-dev
+    - libssl-dev
     stage-packages:
-      - libexpat1
-      - libssl1.0.0
-  
+    - adwaita-icon-theme
+    - libexpat1
+    - libgconf-2-4
+    - libqtcore4
+    - libqtgui4
+    - libqt4-network
+    - libssl1.0.0
+    - qt-at-spi
+    organize:
+      usr/lib/**/gio: usr/lib/gio
+    #   snap/*/current/usr/bin/*: usr/bin/
+    #   snap/*/current/usr/lib/*: usr/lib/
+    #   snap/*/current/usr/share/*: usr/share/
+
   makemkv-bin:
+    after: [snapcraft-preload]
     plugin: make
     source: http://www.makemkv.com/download/makemkv-bin-$SNAPCRAFT_PROJECT_VERSION.tar.gz
     prepare: |
@@ -72,7 +101,16 @@ parts:
       execstack -c bin/amd64/makemkvcon
       execstack -c bin/i386/makemkvcon
       execstack -c bin/i386/mmdtsdec
+    install: |
+      JDK=$(find /usr/lib/jvm -type d -name "java-8-openjdk-*" | head -n1 | xargs basename)
+      JDKBIN=../lib/jvm/$JDK/jre/bin
+      for exec in java javaws jexec jjs; do
+        ln -s $JDKBIN/$exec $SNAPCRAFT_PART_INSTALL/usr/bin/$exec
+      done
     build-packages:
-      - execstack
+    - default-jre # used to work out the right symlink dir in `install`
+    - execstack
     stage-packages:
-      - default-jre
+    - default-jre
+    stage:
+    - -usr/lib/jvm/java-8-openjdk-amd64/jre/lib/security/cacerts

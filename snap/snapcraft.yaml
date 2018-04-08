@@ -39,8 +39,11 @@ apps:
 
 parts:
   libav:
-    plugin: autotools
     source: http://ffmpeg.org/releases/ffmpeg-3.4.tar.bz2
+    plugin: autotools
+    build-packages:
+    - libfdk-aac-dev
+    - yasm
     configflags:
     - --prefix=/usr
     - --enable-pic
@@ -48,35 +51,33 @@ parts:
     - --enable-libfdk-aac
     - --disable-cuda
     - --disable-cuvid
-    build-packages:
-    - libfdk-aac-dev
-    - yasm
     stage-packages:
     - libfdk-aac0
     - libxcb-shape0
     prime:
-    - -usr/lib/**/*.a
+    - -**/*.a
+    - -**/*.la
 
   patches:
     plugin: dump
-    source: patches
+    source: ./patches
     prime:
     - -*
 
   makemkv-oss:
     after: [patches, desktop-qt4, libav, snapcraft-preload]
-    plugin: autotools
     source: http://www.makemkv.com/download/makemkv-oss-$SNAPCRAFT_PROJECT_VERSION.tar.gz
-    prepare: |
-      patch -Np1 < $SNAPCRAFT_STAGE/patch.diff
-    configflags:
-    # - --prefix=/snap/$SNAPCRAFT_PROJECT_NAME/current/usr
-    - --prefix=/usr
+    plugin: autotools
     build-packages:
     - libexpat1-dev
     - libgl1-mesa-dev
     - libqt4-dev
     - libssl-dev
+    prepare: |
+      patch -Np1 < $SNAPCRAFT_STAGE/patch.diff
+    configflags:
+    # - --prefix=/snap/$SNAPCRAFT_PROJECT_NAME/current/usr
+    - --prefix=/usr
     stage-packages:
     - adwaita-icon-theme
     - libexpat1
@@ -91,11 +92,17 @@ parts:
     #   snap/*/current/usr/bin/*: usr/bin/
     #   snap/*/current/usr/lib/*: usr/lib/
     #   snap/*/current/usr/share/*: usr/share/
+    prime:
+    - -**/*.a
+    - -**/*.la
 
   makemkv-bin:
     after: [snapcraft-preload]
-    plugin: make
     source: http://www.makemkv.com/download/makemkv-bin-$SNAPCRAFT_PROJECT_VERSION.tar.gz
+    plugin: make
+    build-packages:
+    - default-jre # used to work out the right symlink dir in `install`
+    - execstack
     prepare: |
       mkdir tmp && touch tmp/eula_accepted
       execstack -c bin/amd64/makemkvcon
@@ -107,11 +114,10 @@ parts:
       for exec in java javaws jexec jjs; do
         ln -s $JDKBIN/$exec $SNAPCRAFT_PART_INSTALL/usr/bin/$exec
       done
-    build-packages:
-    - default-jre # used to work out the right symlink dir in `install`
-    - execstack
-    stage-packages:
-    - default-jre
     stage:
     - -usr/lib/jvm/java-8-openjdk-amd64/jre/lib/security/cacerts
-
+    stage-packages:
+    - default-jre
+    prime:
+    - -**/*.a
+    - -**/*.la

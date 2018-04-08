@@ -10,6 +10,10 @@ confinement: strict
 apps:
   makemkv:
     command: desktop-launch $SNAP/usr/bin/makemkv
+    desktop: usr/share/applications/makemkv.desktop
+    environment:
+      MAKEMKVCON: $SNAP/usr/bin/makemkvcon
+      JAVA_HOME: $SNAP/usr
     plugs:
     # - account-control
     - desktop
@@ -22,9 +26,6 @@ apps:
     - removable-media
     - wayland
     - x11
-    environment:
-      MAKEMKVCON: $SNAP/usr/bin/makemkvcon
-      JAVA_HOME: $SNAP/usr
 
   makemkvcon:
     command: usr/bin/makemkvcon
@@ -75,6 +76,7 @@ parts:
     - libssl-dev
     prepare: |
       patch -Np1 < $SNAPCRAFT_STAGE/patch.diff
+      sed -i 's|Icon=.*|Icon=${SNAP}/usr/share/icons/hicolor/128x128/apps/makemkv.png|' makemkvgui/share/makemkv.desktop
     configflags:
     # - --prefix=/snap/$SNAPCRAFT_PROJECT_NAME/current/usr
     - --prefix=/usr

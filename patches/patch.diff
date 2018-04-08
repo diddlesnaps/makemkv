@@ -1,0 +1,12 @@
+diff -ru src/makemkvgui/src/main.cpp b/makemkvgui/src/main.cpp
+--- src/makemkvgui/src/main.cpp	2018-02-03 23:00:46.000000000 +0000
++++ b/makemkvgui/src/main.cpp	2018-02-12 01:40:17.513799372 +0000
+@@ -51,7 +51,7 @@
+ #endif
+ 
+     unsigned int errcode;
+-    if (false==apc.Init('G',"makemkvcon",&errcode))
++    if (false==apc.Init('G',":",&errcode))
+     {
+         QMessageBox::critical(NULL,UI_QSTRING(APP_CAPTION_MSG),UI_QSTRING(APP_INIT_FAILED));
+         return 1;

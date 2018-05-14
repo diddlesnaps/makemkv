@@ -5,7 +5,7 @@ description: |
   Backup your Bluray and DVD discs
 
 grade: devel
-confinement: strict
+confinement: devmode
 
 architectures:
 - build-on: amd64
@@ -44,7 +44,7 @@ apps:
 
 parts:
   libav:
-    source: http://ffmpeg.org/releases/ffmpeg-3.4.tar.bz2
+    source: http://ffmpeg.org/releases/ffmpeg-3.4.2.tar.xz
     plugin: autotools
     build-packages:
     - libfdk-aac-dev
@@ -70,17 +70,18 @@ parts:
     - -*
 
   makemkv-oss:
-    after: [patches, desktop-qt4, libav, snapcraft-preload]
+    after: [desktop-qt5, patches, libav]
     source: http://www.makemkv.com/download/makemkv-oss-$SNAPCRAFT_PROJECT_VERSION.tar.gz
     plugin: autotools
     build-packages:
     - libexpat1-dev
     - libgl1-mesa-dev
-    - libqt4-dev
     - libssl-dev
-    prepare: |
+    - qtbase5-dev
+    override-build: |
       patch -Np1 < $SNAPCRAFT_STAGE/patch.diff
       sed -i 's|Icon=.*|Icon=${SNAP}/usr/share/icons/hicolor/128x128/apps/makemkv.png|' makemkvgui/share/makemkv.desktop
+      snapcraftctl build
     configflags:
     # - --prefix=/snap/$SNAPCRAFT_PROJECT_NAME/current/usr
     - --prefix=/usr
@@ -88,11 +89,11 @@ parts:
     - adwaita-icon-theme
     - libexpat1
     - libgconf-2-4
-    - libqtcore4
-    - libqtgui4
-    - libqt4-network
+    - libqt5core5a
+    - libqt5dbus5
+    - libqt5gui5
+    - libqt5widgets5
     - libssl1.0.0
-    - qt-at-spi
     organize:
       usr/lib/**/gio: usr/lib/gio
     #   snap/*/current/usr/bin/*: usr/bin/
@@ -109,12 +110,13 @@ parts:
     build-packages:
     - default-jre # used to work out the right symlink dir in `install`
     - execstack
-    prepare: |
+    override-build: |
       mkdir tmp && touch tmp/eula_accepted
       execstack -c bin/amd64/makemkvcon
       execstack -c bin/i386/makemkvcon
-      execstack -c bin/i386/mmdtsdec
-    install: |
+
+      snapcraftctl build
+
       JDK=$(find /usr/lib/jvm -type d -name "java-8-openjdk-*" | head -n1 | xargs basename)
       JDKBIN=../lib/jvm/$JDK/jre/bin
       for exec in java javaws jexec jjs; do

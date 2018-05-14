@@ -7,6 +7,10 @@ description: |
 grade: devel
 confinement: strict
 
+architectures:
+- build-on: amd64
+- build-on: i386
+
 apps:
   makemkv:
     command: desktop-launch $SNAP/usr/bin/makemkv

@@ -1,5 +1,5 @@
 name: makemkv
-version: '1.12.2'
+version: '1.12.3'
 summary: Backup your Bluray and DVD discs
 description: |
   Backup your Bluray and DVD discs
@@ -11,6 +11,10 @@ architectures:
 - build-on: amd64
 - build-on: i386
 
+plugs:
+  optical-drive:
+    write: true
+
 apps:
   makemkv:
     command: desktop-launch $SNAP/usr/bin/makemkv
@@ -19,7 +23,6 @@ apps:
       MAKEMKVCON: $SNAP/usr/bin/makemkvcon
       JAVA_HOME: $SNAP/usr
     plugs:
-    # - account-control
     - desktop
     - desktop-legacy
     - gsettings

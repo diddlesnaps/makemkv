@@ -62,9 +62,6 @@ parts:
     stage-packages:
     - libfdk-aac0
     - libxcb-shape0
-    prime:
-    - -**/*.a
-    - -**/*.la
 
   patches:
     plugin: dump
@@ -78,6 +75,7 @@ parts:
     plugin: autotools
     build-packages:
     - libexpat1-dev
+    - libegl1-mesa-dev
     - libgl1-mesa-dev
     - libssl-dev
     - qtbase5-dev
@@ -89,29 +87,30 @@ parts:
     # - --prefix=/snap/$SNAPCRAFT_PROJECT_NAME/current/usr
     - --prefix=/usr
     stage-packages:
-    - adwaita-icon-theme
     - libexpat1
     - libgconf-2-4
     - libqt5core5a
     - libqt5dbus5
     - libqt5gui5
     - libqt5widgets5
+    - libqt5waylandclient5
     - libssl1.0.0
-    organize:
-      usr/lib/**/gio: usr/lib/gio
+    - libwayland-client0
+    - libwayland-cursor0
+    - libx11-6
+    - qtwayland5
+      #organize:
+      #  usr/lib/**/gio: usr/lib/gio
     #   snap/*/current/usr/bin/*: usr/bin/
     #   snap/*/current/usr/lib/*: usr/lib/
     #   snap/*/current/usr/share/*: usr/share/
-    prime:
-    - -**/*.a
-    - -**/*.la
 
   makemkv-bin:
     after: [snapcraft-preload]
     source: http://www.makemkv.com/download/makemkv-bin-$SNAPCRAFT_PROJECT_VERSION.tar.gz
     plugin: make
     build-packages:
-    - default-jre # used to work out the right symlink dir in `install`
+    - default-jre # used to work out the right symlink dir in `override-build`
     - execstack
     override-build: |
       mkdir tmp && touch tmp/eula_accepted
@@ -120,15 +119,21 @@ parts:
 
       snapcraftctl build
 
+      mv $SNAPCRAFT_PART_INSTALL/usr/bin/makemkvcon $SNAPCRAFT_PART_INSTALL/usr/bin/makemkvcon.real
+
       JDK=$(find /usr/lib/jvm -type d -name "java-8-openjdk-*" | head -n1 | xargs basename)
       JDKBIN=../lib/jvm/$JDK/jre/bin
       for exec in java javaws jexec jjs; do
-        ln -s $JDKBIN/$exec $SNAPCRAFT_PART_INSTALL/usr/bin/$exec
+        ln -sf $JDKBIN/$exec $SNAPCRAFT_PART_INSTALL/usr/bin/$exec
       done
+
+      mkdir -p $SNAPCRAFT_PART_INSTALL/usr/bin
+      cat <<EOF > $SNAPCRAFT_PART_INSTALL/usr/bin/makemkvcon
+      #!/bin/sh
+      exec \$SNAP/bin/snapcraft-preload \$SNAP/usr/bin/makemkvcon.real "\$@"
+      EOF
+      chmod +x $SNAPCRAFT_PART_INSTALL/usr/bin/makemkvcon
     stage:
     - -usr/lib/jvm/java-8-openjdk-amd64/jre/lib/security/cacerts
     stage-packages:
     - default-jre
-    prime:
-    - -**/*.a
-    - -**/*.la

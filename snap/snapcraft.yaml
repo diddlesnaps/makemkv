@@ -1,5 +1,5 @@
 name: makemkv
-version: '1.12.3'
+version: '1.14.1'
 summary: Backup your Bluray and DVD discs
 description: |
   Backup your Bluray and DVD discs
@@ -47,18 +47,17 @@ apps:
 
 parts:
   libav:
-    source: http://ffmpeg.org/releases/ffmpeg-3.4.2.tar.xz
+    source: https://ffmpeg.org/releases/ffmpeg-4.1.tar.xz
     plugin: autotools
     build-packages:
     - libfdk-aac-dev
     - yasm
     configflags:
     - --prefix=/usr
-    - --enable-pic
+    - --enable-static
     - --disable-shared
+    - --enable-pic
     - --enable-libfdk-aac
-    - --disable-cuda
-    - --disable-cuvid
     stage-packages:
     - libfdk-aac0
     - libxcb-shape0
@@ -99,11 +98,6 @@ parts:
     - libwayland-cursor0
     - libx11-6
     - qtwayland5
-      #organize:
-      #  usr/lib/**/gio: usr/lib/gio
-    #   snap/*/current/usr/bin/*: usr/bin/
-    #   snap/*/current/usr/lib/*: usr/lib/
-    #   snap/*/current/usr/share/*: usr/share/
 
   makemkv-bin:
     after: [snapcraft-preload]

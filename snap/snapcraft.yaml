@@ -100,7 +100,6 @@ parts:
     - qtwayland5
 
   makemkv-bin:
-    after: [snapcraft-preload]
     source: http://www.makemkv.com/download/makemkv-bin-$SNAPCRAFT_PROJECT_VERSION.tar.gz
     plugin: make
     build-packages:
@@ -113,20 +112,11 @@ parts:
 
       snapcraftctl build
 
-      mv $SNAPCRAFT_PART_INSTALL/usr/bin/makemkvcon $SNAPCRAFT_PART_INSTALL/usr/bin/makemkvcon.real
-
       JDK=$(find /usr/lib/jvm -type d -name "java-8-openjdk-*" | head -n1 | xargs basename)
       JDKBIN=../lib/jvm/$JDK/jre/bin
       for exec in java javaws jexec jjs; do
         ln -sf $JDKBIN/$exec $SNAPCRAFT_PART_INSTALL/usr/bin/$exec
       done
-
-      mkdir -p $SNAPCRAFT_PART_INSTALL/usr/bin
-      cat <<EOF > $SNAPCRAFT_PART_INSTALL/usr/bin/makemkvcon
-      #!/bin/sh
-      exec \$SNAP/bin/snapcraft-preload \$SNAP/usr/bin/makemkvcon.real "\$@"
-      EOF
-      chmod +x $SNAPCRAFT_PART_INSTALL/usr/bin/makemkvcon
     stage:
     - -usr/lib/jvm/java-8-openjdk-amd64/jre/lib/security/cacerts
     stage-packages:

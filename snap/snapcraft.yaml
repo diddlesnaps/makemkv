@@ -1,11 +1,11 @@
 name: makemkv
-version: '1.14.1'
 summary: Backup your Bluray and DVD discs
 description: |
   Backup your Bluray and DVD discs
 
 grade: devel
 confinement: devmode
+adopt-info: get-version
 
 architectures:
 - build-on: amd64
@@ -68,16 +68,34 @@ parts:
     prime:
     - -*
 
+  get-version:
+    plugin: dump
+    build-packages:
+    - curl
+    override-pull: |
+      VERSION="$(curl --silent --show-error --location \
+        'https://makemkv.com/forum/viewtopic.php?f=3&t=224' \
+        | grep -E 'http://www.makemkv.com/download/makemkv-bin-[0-9]+\.[0-9]+\.[0-9]+\.tar\.gz' \
+        | head -n1 | sed -E -e \
+          's|^.*\"http://www.makemkv.com/download/makemkv-bin-([0-9]+\.[0-9]+\.[0-9]+)\.tar\.gz\".*|\1|')"
+      echo "Setting snap version to '$VERSION'"
+      snapcraftctl set-version "$VERSION"
+      echo "$VERSION" > version
+    prime: [-*]
+
   makemkv-oss:
-    after: [desktop-qt5, patches, libav]
-    source: http://www.makemkv.com/download/makemkv-oss-$SNAPCRAFT_PROJECT_VERSION.tar.gz
+    after: [get-version, desktop-qt5, patches, libav]
     plugin: autotools
     build-packages:
+    - curl
     - libexpat1-dev
     - libegl1-mesa-dev
     - libgl1-mesa-dev
     - libssl-dev
     - qtbase5-dev
+    - tar
+    override-pull: |
+      curl --silent --show-error --location "http://www.makemkv.com/download/makemkv-oss-$(cat "$SNAPCRAFT_STAGE/version").tar.gz" | tar xz --strip-components=1
     override-build: |
       patch -Np1 < $SNAPCRAFT_STAGE/patch.diff
       sed -i 's|Icon=.*|Icon=${SNAP}/usr/share/icons/hicolor/128x128/apps/makemkv.png|' makemkvgui/share/makemkv.desktop
@@ -100,11 +118,13 @@ parts:
     - qtwayland5
 
   makemkv-bin:
-    source: http://www.makemkv.com/download/makemkv-bin-$SNAPCRAFT_PROJECT_VERSION.tar.gz
+    after: [get-version]
     plugin: make
     build-packages:
     - default-jre # used to work out the right symlink dir in `override-build`
     - execstack
+    override-pull: |
+      curl --silent --show-error --location "http://www.makemkv.com/download/makemkv-bin-$(cat "$SNAPCRAFT_STAGE/version").tar.gz" | tar xz --strip-components=1
     override-build: |
       mkdir tmp && touch tmp/eula_accepted
       execstack -c bin/amd64/makemkvcon

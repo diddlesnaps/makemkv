@@ -3,21 +3,29 @@ summary: Backup your Bluray and DVD discs
 description: |
   Backup your Bluray and DVD discs
 
-grade: devel
+grade: stable
 confinement: devmode
-adopt-info: get-version
+adopt-info: makemkv-oss
+base: core18
 
 architectures:
 - build-on: amd64
 - build-on: i386
 
+layout:
+  /etc/wgetrc:
+    bind-file: $SNAP/etc/wgetrc
+  /usr/bin/wget:
+    bind-file: $SNAP/usr/bin/wget
+
 plugs:
   optical-drive:
+    interface: optical-drive
     write: true
 
 apps:
   makemkv:
-    command: desktop-launch $SNAP/usr/bin/makemkv
+    command: desktop-launch snapcraft-preload $SNAP/usr/bin/makemkv
     desktop: usr/share/applications/makemkv.desktop
     environment:
       MAKEMKVCON: $SNAP/usr/bin/makemkvcon
@@ -26,7 +34,9 @@ apps:
     - desktop
     - desktop-legacy
     - gsettings
+    - hardware-observe
     - home
+    - network
     - opengl
     - optical-drive
     - process-control
@@ -35,19 +45,20 @@ apps:
     - x11
 
   makemkvcon:
-    command: usr/bin/makemkvcon
+    command: snapcraft-preload $SNAP/usr/bin/makemkvcon
     environment:
       JAVA_HOME: $SNAP/usr
     plugs:
     - hardware-observe
     - home
+    - network
     - optical-drive
     - process-control
     - removable-media
 
 parts:
   libav:
-    source: https://ffmpeg.org/releases/ffmpeg-4.1.tar.xz
+    source: https://ffmpeg.org/releases/ffmpeg-4.1.1.tar.xz
     plugin: autotools
     build-packages:
     - libfdk-aac-dev
@@ -59,32 +70,43 @@ parts:
     - --enable-pic
     - --enable-libfdk-aac
     stage-packages:
-    - libfdk-aac0
+    - libfdk-aac1
     - libxcb-shape0
 
-  patches:
-    plugin: dump
-    source: ./patches
-    prime:
-    - -*
-
-  get-version:
-    plugin: dump
+  snapcraft-preload:
+    source: https://github.com/diddledan/snapcraft-preload.git
+    source-branch: semaphore-support
+    plugin: cmake
     build-packages:
-    - curl
-    override-pull: |
-      VERSION="$(curl --silent --show-error --location \
-        'https://makemkv.com/forum/viewtopic.php?f=3&t=224' \
-        | grep -E 'http://www.makemkv.com/download/makemkv-bin-[0-9]+\.[0-9]+\.[0-9]+\.tar\.gz' \
-        | head -n1 | sed -E -e \
-          's|^.*\"http://www.makemkv.com/download/makemkv-bin-([0-9]+\.[0-9]+\.[0-9]+)\.tar\.gz\".*|\1|')"
-      echo "Setting snap version to '$VERSION'"
-      snapcraftctl set-version "$VERSION"
-      echo "$VERSION" > version
-    prime: [-*]
+    - gcc-multilib
+    - g++-multilib
+    stage-packages:
+    - on amd64:
+      - lib32stdc++6
+
+  desktop-qt5:
+    source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
+    source-subdir: qt
+    plugin: make
+    make-parameters: ["FLAVOR=qt5"]
+    build-packages:
+    - qtbase5-dev
+    - dpkg-dev
+    stage-packages:
+    - libxkbcommon0
+    - ttf-ubuntu-font-family
+    - dmz-cursor-theme
+    - light-themes
+    - adwaita-icon-theme
+    - gnome-themes-standard
+    - shared-mime-info
+    - libqt5gui5
+    - libgdk-pixbuf2.0-0
+    - libqt5svg5 # for loading icon themes which are svg
+    - locales-all
 
   makemkv-oss:
-    after: [get-version, desktop-qt5, patches, libav]
+    after: [desktop-qt5, libav]
     plugin: autotools
     build-packages:
     - curl
@@ -94,14 +116,24 @@ parts:
     - libssl-dev
     - qtbase5-dev
     - tar
+    - zlib1g-dev
+    source: http://www.makemkv.com/download/makemkv-oss-x.xx.x.tar.gz
     override-pull: |
-      curl --silent --show-error --location "http://www.makemkv.com/download/makemkv-oss-$(cat "$SNAPCRAFT_STAGE/version").tar.gz" | tar xz --strip-components=1
+      VERSION="$(curl --silent --show-error --location \
+        'https://makemkv.com/forum/viewtopic.php?f=3&t=224' \
+        | grep -E 'http://www.makemkv.com/download/makemkv-bin-[0-9]+\.[0-9]+\.[0-9]+\.tar\.gz' \
+        | head -n1 | sed -E -e \
+          's|^.*\"http://www.makemkv.com/download/makemkv-bin-([0-9]+\.[0-9]+\.[0-9]+)\.tar\.gz\".*|\1|')"
+      echo "Setting snap version to '$VERSION'"
+      snapcraftctl set-version "$VERSION"
+      echo "$VERSION" > version
+
+      curl --silent --show-error --location "http://www.makemkv.com/download/makemkv-oss-$VERSION.tar.gz" | tar xz --strip-components=1
     override-build: |
-      patch -Np1 < $SNAPCRAFT_STAGE/patch.diff
       sed -i 's|Icon=.*|Icon=${SNAP}/usr/share/icons/hicolor/128x128/apps/makemkv.png|' makemkvgui/share/makemkv.desktop
       snapcraftctl build
+      cp version $SNAPCRAFT_PART_INSTALL/version
     configflags:
-    # - --prefix=/snap/$SNAPCRAFT_PROJECT_NAME/current/usr
     - --prefix=/usr
     stage-packages:
     - libexpat1
@@ -116,13 +148,17 @@ parts:
     - libwayland-cursor0
     - libx11-6
     - qtwayland5
+    - zlib1g
+    prime:
+    - -version
 
   makemkv-bin:
-    after: [get-version]
+    after: [makemkv-oss]
     plugin: make
     build-packages:
     - default-jre # used to work out the right symlink dir in `override-build`
     - execstack
+    source: http://www.makemkv.com/download/makemkv-bin-x.xx.x.tar.gz
     override-pull: |
       curl --silent --show-error --location "http://www.makemkv.com/download/makemkv-bin-$(cat "$SNAPCRAFT_STAGE/version").tar.gz" | tar xz --strip-components=1
     override-build: |
@@ -132,12 +168,14 @@ parts:
 
       snapcraftctl build
 
-      JDK=$(find /usr/lib/jvm -type d -name "java-8-openjdk-*" | head -n1 | xargs basename)
+      JDK=$(find /usr/lib/jvm -type d -name "java-11-openjdk-*" | head -n1 | xargs basename)
       JDKBIN=../lib/jvm/$JDK/jre/bin
       for exec in java javaws jexec jjs; do
         ln -sf $JDKBIN/$exec $SNAPCRAFT_PART_INSTALL/usr/bin/$exec
       done
     stage:
-    - -usr/lib/jvm/java-8-openjdk-amd64/jre/lib/security/cacerts
+    - -usr/lib/jvm/java-11-openjdk-*/jre/lib/security/cacerts
     stage-packages:
     - default-jre
+    - wget
+

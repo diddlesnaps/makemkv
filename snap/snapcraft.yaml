@@ -18,10 +18,10 @@ layout:
   /usr/bin/wget:
     bind-file: $SNAP/usr/bin/wget
 
-plugs:
-  optical-drive:
-    interface: optical-drive
-    write: true
+# plugs:
+#   optical-write:
+#     interface: optical-drive
+#     write: true
 
 apps:
   makemkv:
@@ -45,7 +45,7 @@ apps:
     - x11
 
   makemkvcon:
-    command: snapcraft-preload $SNAP/usr/bin/makemkvcon
+    command: snapcraft-preload $SNAP/usr/bin/makemkvcon.real
     environment:
       JAVA_HOME: $SNAP/usr
     plugs:
@@ -173,6 +173,14 @@ parts:
       for exec in java javaws jexec jjs; do
         ln -sf $JDKBIN/$exec $SNAPCRAFT_PART_INSTALL/usr/bin/$exec
       done
+
+      mv $SNAPCRAFT_PART_INSTALL/usr/bin/makemkvcon $SNAPCRAFT_PART_INSTALL/usr/bin/makemkvcon.real
+      mkdir -p $SNAPCRAFT_PART_INSTALL/usr/bin
+      cat <<EOF > $SNAPCRAFT_PART_INSTALL/usr/bin/makemkvcon
+      #!/bin/sh
+      exec \$SNAP/bin/snapcraft-preload \$SNAP/usr/bin/makemkvcon.real "\$@"
+      EOF
+      chmod +x $SNAPCRAFT_PART_INSTALL/usr/bin/makemkvcon
     stage:
     - -usr/lib/jvm/java-11-openjdk-*/jre/lib/security/cacerts
     stage-packages:

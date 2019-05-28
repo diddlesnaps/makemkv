@@ -147,6 +147,7 @@ parts:
     - libwayland-client0
     - libwayland-cursor0
     - libx11-6
+    - lsscsi
     - qtwayland5
     - zlib1g
     prime:

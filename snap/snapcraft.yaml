@@ -58,7 +58,7 @@ apps:
 
 parts:
   libav:
-    source: https://ffmpeg.org/releases/ffmpeg-4.1.1.tar.xz
+    source: https://ffmpeg.org/releases/ffmpeg-4.2.tar.xz
     plugin: autotools
     build-packages:
     - libfdk-aac-dev
@@ -157,7 +157,7 @@ parts:
     after: [makemkv-oss]
     plugin: make
     build-packages:
-    - default-jre # used to work out the right symlink dir in `override-build`
+    - openjdk-8-jre-headless # used to work out the right symlink dir in `override-build`
     - execstack
     source: http://www.makemkv.com/download/makemkv-bin-x.xx.x.tar.gz
     override-pull: |
@@ -169,7 +169,7 @@ parts:
 
       snapcraftctl build
 
-      JDK=$(find /usr/lib/jvm -type d -name "java-11-openjdk-*" | head -n1 | xargs basename)
+      JDK=$(find /usr/lib/jvm -type d -name "java-8-openjdk-*" | head -n1 | xargs basename)
       JDKBIN=../lib/jvm/$JDK/jre/bin
       for exec in java javaws jexec jjs; do
         ln -sf $JDKBIN/$exec $SNAPCRAFT_PART_INSTALL/usr/bin/$exec
@@ -183,8 +183,8 @@ parts:
       EOF
       chmod +x $SNAPCRAFT_PART_INSTALL/usr/bin/makemkvcon
     stage:
-    - -usr/lib/jvm/java-11-openjdk-*/jre/lib/security/cacerts
+    - -usr/lib/jvm/java-8-openjdk-*/jre/lib/security/cacerts
     stage-packages:
-    - default-jre
+    - openjdk-8-jre-headless
     - wget
 

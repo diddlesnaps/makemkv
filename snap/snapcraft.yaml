@@ -4,7 +4,7 @@ description: |
   Backup your Bluray and DVD discs
 
 grade: stable
-confinement: devmode
+confinement: strict
 adopt-info: makemkv-oss
 base: core18
 
@@ -41,6 +41,7 @@ apps:
     - optical-drive
     - process-control
     - removable-media
+    - unity7
     - wayland
     - x11
 

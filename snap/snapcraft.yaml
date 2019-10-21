@@ -18,10 +18,10 @@ layout:
   /usr/bin/wget:
     bind-file: $SNAP/usr/bin/wget
 
-# plugs:
-#   optical-write:
-#     interface: optical-drive
-#     write: true
+plugs:
+  optical-write:
+    interface: optical-drive
+    write: true
 
 apps:
   makemkv:
@@ -38,7 +38,7 @@ apps:
     - home
     - network
     - opengl
-    - optical-drive
+    - optical-write
     - process-control
     - removable-media
     - unity7
@@ -53,7 +53,7 @@ apps:
     - hardware-observe
     - home
     - network
-    - optical-drive
+    - optical-write
     - process-control
     - removable-media
 

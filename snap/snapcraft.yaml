@@ -38,6 +38,7 @@ apps:
     - home
     - network
     - opengl
+    - optical-drive
     - optical-write
     - process-control
     - removable-media
@@ -53,6 +54,7 @@ apps:
     - hardware-observe
     - home
     - network
+    - optical-drive
     - optical-write
     - process-control
     - removable-media

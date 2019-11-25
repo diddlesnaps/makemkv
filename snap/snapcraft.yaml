@@ -25,7 +25,11 @@ plugs:
 
 apps:
   makemkv:
-    command: desktop-launch snapcraft-preload $SNAP/usr/bin/makemkv
+    command: usr/bin/makemkv
+    command-chain:
+    - bin/desktop-launch
+    - bin/makemkv-launch
+    - bin/snapcraft-preload
     desktop: usr/share/applications/makemkv.desktop
     environment:
       MAKEMKVCON: $SNAP/usr/bin/makemkvcon
@@ -60,6 +64,36 @@ apps:
     - removable-media
 
 parts:
+  scripts:
+    source: .
+    plugin: dump
+    override-pull: |
+      cat <<EOF > makemkv-launch
+      #!/bin/sh
+      if [ ! -f \$SNAP_USER_DATA/.MakeMKV/settings.conf ]; then
+        mkdir -p \$SNAP_USER_DATA/.MakeMKV
+        cat <<SEOF > \$SNAP_USER_DATA/.MakeMKV/settings.conf
+      #
+      # MakeMKV settings file, written by MakeMKV v1.14.5 linux(x64-release)
+      #
+
+      app_DestinationDir = ""
+      app_Java = ""
+      app_Key = ""
+      app_PreferredLanguage = ""
+      app_ccextractor = "/snap/$SNAPCRAFT_PROJECT_NAME/current/usr/bin/ccextractor"
+      dvd_MinimumTitleLength = "300"
+      sdf_Stop = ""
+      SEOF
+      elif grep 'app_ccextractor = ""' \$SNAP_USER_DATA/.MakeMKV/settings.conf; then
+        sed -i -E 's|(app_ccextractor = )""|\1"/snap/$SNAPCRAFT_PROJECT_NAME/current/usr/bin/ccextractor"|' \$SNAP_USER_DATA/.MakeMKV/settings.conf
+      fi
+      exec \$@
+      EOF
+      chmod +x makemkv-launch
+    organize:
+      makemkv-launch: bin/makemkv-launch
+
   libav:
     source: https://ffmpeg.org/releases/ffmpeg-4.2.tar.xz
     plugin: autotools
@@ -107,6 +141,27 @@ parts:
     - libgdk-pixbuf2.0-0
     - libqt5svg5 # for loading icon themes which are svg
     - locales-all
+
+  ccextractor:
+    source: https://github.com/CCExtractor/ccextractor/archive/v0.88.tar.gz
+    source-subdir: src
+    plugin: cmake
+    configflags:
+    - -DCMAKE_INSTALL_PREFIX=/usr
+    build-packages:
+    - libcurl4-gnutls-dev
+    - libglew-dev
+    - libglfw3-dev
+    - libleptonica-dev
+    - libtesseract-dev
+    - tesseract-ocr
+    stage-packages:
+    - libcurl3-gnutls
+    - libglew2.0
+    - libglu1-mesa
+    - liblept5
+    - libtesseract4
+    - tesseract-ocr
 
   makemkv-oss:
     after: [desktop-qt5, libav]

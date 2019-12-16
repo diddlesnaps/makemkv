@@ -1,0 +1,20 @@
+#!/bin/bash -ex
+
+# copying the conf dir from real /etc into $SNAP_DATA
+mkdir -p "$SNAP_DATA/etc/ld.so.conf.d"
+cp -r /etc/ld.so.conf.d/* "$SNAP_DATA/etc/ld.so.conf.d"
+cp /etc/ld.so.conf "$SNAP_DATA/etc/ld.so.conf"
+
+# delete empty entries in the LD_LIBRARY_PATH
+# i.e. change "/a/b/c:/1/2/3::/other" into "/a/b/c:/1/2/3:/other"
+# if we don't do this, then ldconfig gets confused with "" as arguments of dirs
+# to add to the cache
+LD_LIBRARY_PATH="${LD_LIBRARY_PATH//::/:}"
+
+# run ldconfig on our LD_LIBRARY_PATH lib dirs
+IFS=':' read -ra PATHS <<< "$LD_LIBRARY_PATH"
+mkdir -p "$SNAP_DATA/fake-etc"
+ldconfig -v -C "$SNAP_DATA/fake-etc/ld.so.cache" -f "$SNAP_DATA/etc/ld.so.conf" "${PATHS[@]}"
+
+# install the new ld.so.cache to the global location by just copying it
+cp "$SNAP_DATA/fake-etc/ld.so.cache" "$SNAP_DATA/etc/ld.so.cache"

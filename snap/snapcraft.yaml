@@ -29,11 +29,13 @@ apps:
     command-chain:
     - bin/desktop-launch
     - bin/makemkv-launch
+    - bin/check-ld-cache
     - bin/snapcraft-preload
     desktop: usr/share/applications/makemkv.desktop
     environment:
       MAKEMKVCON: $SNAP/usr/bin/makemkvcon
       JAVA_HOME: $SNAP/usr
+      FINAL_BINARY: $SNAP/usr/bin/makemkv
     plugs:
     - desktop
     - desktop-legacy
@@ -51,9 +53,14 @@ apps:
     - x11
 
   makemkvcon:
-    command: snapcraft-preload $SNAP/usr/bin/makemkvcon.real
+    command: usr/bin/makemkvcon.real
+    command-chain:
+    - bin/makemkv-launch
+    - bin/check-ld-cache
+    - bin/snapcraft-preload
     environment:
       JAVA_HOME: $SNAP/usr
+      FINAL_BINARY: $SNAP/usr/bin/makemkvcon.real
     plugs:
     - hardware-observe
     - home
@@ -65,33 +72,11 @@ apps:
 
 parts:
   scripts:
-    source: .
+    source: scripts
     plugin: dump
-    override-pull: |
-      cat <<EOF > makemkv-launch
-      #!/bin/sh
-      if [ ! -f \$SNAP_USER_DATA/.MakeMKV/settings.conf ]; then
-        mkdir -p \$SNAP_USER_DATA/.MakeMKV
-        cat <<SEOF > \$SNAP_USER_DATA/.MakeMKV/settings.conf
-      #
-      # MakeMKV settings file, written by MakeMKV v1.14.5 linux(x64-release)
-      #
-
-      app_DestinationDir = ""
-      app_Java = ""
-      app_Key = ""
-      app_PreferredLanguage = ""
-      app_ccextractor = "/snap/$SNAPCRAFT_PROJECT_NAME/current/usr/bin/ccextractor"
-      dvd_MinimumTitleLength = "300"
-      sdf_Stop = ""
-      SEOF
-      elif grep 'app_ccextractor = ""' \$SNAP_USER_DATA/.MakeMKV/settings.conf; then
-        sed -i -E 's|(app_ccextractor = )""|\1"/snap/$SNAPCRAFT_PROJECT_NAME/current/usr/bin/ccextractor"|' \$SNAP_USER_DATA/.MakeMKV/settings.conf
-      fi
-      exec \$@
-      EOF
-      chmod +x makemkv-launch
     organize:
+      build-ld-cache: bin/build-ld-cache
+      check-ld-cache: bin/check-ld-cache
       makemkv-launch: bin/makemkv-launch
 
   libav:
@@ -109,6 +94,8 @@ parts:
     stage-packages:
     - libfdk-aac1
     - libxcb-shape0
+    prime:
+    - -**/*.a
 
   snapcraft-preload:
     source: https://github.com/diddledan/snapcraft-preload.git
@@ -140,6 +127,7 @@ parts:
     - libqt5gui5
     - libgdk-pixbuf2.0-0
     - libqt5svg5 # for loading icon themes which are svg
+    - qtwayland5
     - locales-all
 
   ccextractor:
@@ -206,9 +194,12 @@ parts:
     - libwayland-cursor0
     - libx11-6
     - lsscsi
-    - qtwayland5
     - zlib1g
     prime:
+    - -bin/ffmpeg
+    - -bin/ffprobe
+    - -lib/$SNAPCRAFT_ARCH_TRIPLET/libfdisk.so*
+    - -sbin
     - -version
 
   makemkv-bin:

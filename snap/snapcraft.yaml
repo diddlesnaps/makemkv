@@ -23,6 +23,14 @@ plugs:
     interface: optical-drive
     write: true
 
+hooks:
+  install:
+    passthrough:
+      command-chain: [bin/desktop-launch]
+  post-refresh:
+    passthrough:
+      command-chain: [bin/desktop-launch]
+
 apps:
   makemkv:
     command: usr/bin/makemkv

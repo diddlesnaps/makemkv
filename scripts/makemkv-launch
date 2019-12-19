@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -e
 if [ ! -f $SNAP_USER_DATA/.MakeMKV/settings.conf ]; then
     mkdir -p $SNAP_USER_DATA/.MakeMKV
 

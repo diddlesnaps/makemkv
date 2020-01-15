@@ -13,10 +13,20 @@ architectures:
 - build-on: i386
 
 layout:
-  /etc/wgetrc:
-    bind-file: $SNAP/etc/wgetrc
-  /usr/bin/wget:
-    bind-file: $SNAP/usr/bin/wget
+  /etc/java-8-openjdk:
+    bind: $SNAP/etc/java-8-openjdk
+  /usr/bin/ccextractor:
+    bind-file: $SNAP/usr/bin/ccextractor
+  /usr/bin/java:
+    symlink: $SNAP/usr/lib/jvm/java-8-openjdk-amd64/bin/java
+  /usr/bin/makemkvcon:
+    bind-file: $SNAP/usr/bin/makemkvcon
+  /usr/bin/makemkvcon.real:
+    bind-file: $SNAP/usr/bin/makemkvcon.real
+  /usr/bin/curl:
+    bind-file: $SNAP/usr/bin/curl
+  /usr/lib/jvm:
+    bind: $SNAP/usr/lib/jvm
   /usr/share/MakeMKV:
     bind: $SNAP/usr/share/MakeMKV
 
@@ -38,13 +48,10 @@ apps:
     command: usr/bin/makemkv
     command-chain:
     - bin/desktop-launch
-    - bin/makemkv-launch
     - bin/check-ld-cache
     - bin/snapcraft-preload
     desktop: usr/share/applications/makemkv.desktop
     environment:
-      MAKEMKVCON: $SNAP/usr/bin/makemkvcon
-      JAVA_HOME: $SNAP/usr
       FINAL_BINARY: $SNAP/usr/bin/makemkv
     plugs:
     - desktop
@@ -63,14 +70,11 @@ apps:
     - x11
 
   makemkvcon:
-    command: usr/bin/makemkvcon.real
+    command: usr/bin/makemkvcon
     command-chain:
-    - bin/makemkv-launch
     - bin/check-ld-cache
-    - bin/snapcraft-preload
     environment:
-      JAVA_HOME: $SNAP/usr
-      FINAL_BINARY: $SNAP/usr/bin/makemkvcon.real
+      FINAL_BINARY: $SNAP/usr/bin/makemkvcon
     plugs:
     - hardware-observe
     - home
@@ -135,6 +139,7 @@ parts:
     - gnome-themes-standard
     - shared-mime-info
     - libqt5gui5
+    - libgtk2.0-0
     - libgdk-pixbuf2.0-0
     - libqt5svg5 # for loading icon themes which are svg
     - qtwayland5
@@ -238,12 +243,12 @@ parts:
       mkdir -p $SNAPCRAFT_PART_INSTALL/usr/bin
       cat <<EOF > $SNAPCRAFT_PART_INSTALL/usr/bin/makemkvcon
       #!/bin/sh
-      exec \$SNAP/bin/snapcraft-preload \$SNAP/usr/bin/makemkvcon.real "\$@"
+      exec \$SNAP/bin/snapcraft-preload /usr/bin/makemkvcon.real "\$@"
       EOF
       chmod +x $SNAPCRAFT_PART_INSTALL/usr/bin/makemkvcon
     stage:
     - -usr/lib/jvm/java-8-openjdk-*/jre/lib/security/cacerts
     stage-packages:
     - openjdk-8-jre-headless
-    - wget
+    - curl
 

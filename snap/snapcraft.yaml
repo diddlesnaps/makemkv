@@ -17,6 +17,8 @@ layout:
     bind-file: $SNAP/etc/wgetrc
   /usr/bin/wget:
     bind-file: $SNAP/usr/bin/wget
+  /usr/share/MakeMKV:
+    bind: $SNAP/usr/share/MakeMKV
 
 plugs:
   optical-write:

@@ -37,9 +37,11 @@ plugs:
 
 hooks:
   install:
-    command-chain: [bin/desktop-launch]
+    passthrough:
+      command-chain: [bin/desktop-launch]
   post-refresh:
-    command-chain: [bin/desktop-launch]
+    passthrough:
+      command-chain: [bin/desktop-launch]
 
 apps:
   makemkv:

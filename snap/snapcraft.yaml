@@ -23,8 +23,8 @@ layout:
     bind-file: $SNAP/usr/bin/makemkvcon
   /usr/bin/makemkvcon.real:
     bind-file: $SNAP/usr/bin/makemkvcon.real
-  /usr/bin/curl:
-    bind-file: $SNAP/usr/bin/curl
+  /usr/bin/wget:
+    bind-file: $SNAP/usr/bin/wget
   /usr/lib/jvm:
     bind: $SNAP/usr/lib/jvm
   /usr/share/MakeMKV:
@@ -37,11 +37,9 @@ plugs:
 
 hooks:
   install:
-    passthrough:
-      command-chain: [bin/desktop-launch]
+    command-chain: [bin/desktop-launch]
   post-refresh:
-    passthrough:
-      command-chain: [bin/desktop-launch]
+    command-chain: [bin/desktop-launch]
 
 apps:
   makemkv:
@@ -250,5 +248,5 @@ parts:
     - -usr/lib/jvm/java-8-openjdk-*/jre/lib/security/cacerts
     stage-packages:
     - openjdk-8-jre-headless
-    - curl
+    - wget
 

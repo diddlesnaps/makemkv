@@ -19,28 +19,40 @@ layout:
     bind-file: $SNAP/usr/bin/ccextractor
   /usr/bin/java:
     symlink: $SNAP/usr/lib/jvm/java-8-openjdk-amd64/bin/java
-  /usr/bin/makemkvcon:
-    bind-file: $SNAP/usr/bin/makemkvcon
-  /usr/bin/makemkvcon.real:
-    bind-file: $SNAP/usr/bin/makemkvcon.real
   /usr/bin/wget:
     bind-file: $SNAP/usr/bin/wget
   /usr/lib/jvm:
     bind: $SNAP/usr/lib/jvm
-  /usr/share/MakeMKV:
-    bind: $SNAP/usr/share/MakeMKV
+  $SNAP/usr/share/MakeMKV:
+    bind: $SNAP_DATA/usr/share/MakeMKV
 
 plugs:
   optical-write:
     interface: optical-drive
     write: true
+  gtk-3-themes:
+    default-provider: gtk-common-themes:gtk-3-themes
+    interface: content
+    target: $SNAP/data-dir/themes
+  sound-themes:
+    default-provider: gtk-common-themes:sound-themes
+    interface: content
+    target: $SNAP/data-dir/sounds
+  icon-themes:
+    default-provider: gtk-common-themes:icon-themes
+    interface: content
+    target: $SNAP/data-dir/icons
 
 hooks:
   install:
     passthrough:
+      environment:
+        LD_LIBRARY_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP/usr/lib:$SNAP/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP/lib:$LD_LIBRARY_PATH
       command-chain: [bin/desktop-launch]
   post-refresh:
     passthrough:
+      environment:
+        LD_LIBRARY_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP/usr/lib:$SNAP/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP/lib:$LD_LIBRARY_PATH
       command-chain: [bin/desktop-launch]
 
 apps:
@@ -73,8 +85,10 @@ apps:
     command: usr/bin/makemkvcon
     command-chain:
     - bin/check-ld-cache
+    - bin/snapcraft-preload
     environment:
-      FINAL_BINARY: $SNAP/usr/bin/makemkvcon
+      FINAL_BINARY: $SNAP/usr/bin/makemkvcon.real
+      LD_LIBRARY_PATH: $SNAP/usr/lib:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP/lib:$SNAP/lib/$SNAPCRAFT_ARCH_TRIPLET:$LD_LIBRARY_PATH
     plugs:
     - hardware-observe
     - home
@@ -92,6 +106,8 @@ parts:
       build-ld-cache: bin/build-ld-cache
       check-ld-cache: bin/check-ld-cache
       makemkv-launch: bin/makemkv-launch
+    stage-packages:
+    - rsync
 
   libav:
     source: https://ffmpeg.org/releases/ffmpeg-4.2.tar.xz
@@ -246,9 +262,20 @@ parts:
       exec \$SNAP/bin/snapcraft-preload /usr/bin/makemkvcon.real "\$@"
       EOF
       chmod +x $SNAPCRAFT_PART_INSTALL/usr/bin/makemkvcon
+
+      mv $SNAPCRAFT_PART_INSTALL/usr/bin/wget $SNAPCRAFT_PART_INSTALL/usr/bin/wget.real
+      cat <<EOF > $SNAPCRAFT_PART_INSTALL/usr/bin/wget
+      #!/bin/sh
+      exec \$SNAP/usr/bin/wget.real --no-config "\$@"
+      EOF
+      chmod +x $SNAPCRAFT_PART_INSTALL/usr/bin/wget
     stage:
     - -usr/lib/jvm/java-8-openjdk-*/jre/lib/security/cacerts
+    organize:
+      usr/share/MakeMKV: usr/share/MakeMKV.dist
     stage-packages:
+    - libedit2
+    - libjpeg-turbo8
+    - libtinfo5
     - openjdk-8-jre-headless
     - wget
-

@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="makemkv-256.png" alt="MakeMKV">
+  <img src="makemkv.png" alt="MakeMKV">
   <br />
   MakeMKV
 </h1>

@@ -207,7 +207,7 @@ parts:
 
       curl --silent --show-error --location "http://www.makemkv.com/download/makemkv-oss-$VERSION.tar.gz" | tar xz --strip-components=1
     override-build: |
-      sed -i 's|Icon=.*|Icon=${SNAP}/usr/share/icons/hicolor/128x128/apps/makemkv.png|' makemkvgui/share/makemkv.desktop
+      sed -i 's|Icon=.*|Icon=/usr/share/icons/hicolor/256x256/apps/makemkv.png|' makemkvgui/share/makemkv.desktop
       snapcraftctl build
       cp version $SNAPCRAFT_PART_INSTALL/version
     configflags:

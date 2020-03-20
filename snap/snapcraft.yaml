@@ -13,12 +13,12 @@ architectures:
 - build-on: i386
 
 layout:
-  /etc/java-8-openjdk:
-    bind: $SNAP/etc/java-8-openjdk
+  /etc/java-11-openjdk:
+    bind: $SNAP/etc/java-11-openjdk
   /usr/bin/ccextractor:
     bind-file: $SNAP/usr/bin/ccextractor
   /usr/bin/java:
-    symlink: $SNAP/usr/lib/jvm/java-8-openjdk-amd64/bin/java
+    symlink: $SNAP/usr/lib/jvm/java-11-openjdk-amd64/bin/java
   /usr/bin/wget:
     bind-file: $SNAP/usr/bin/wget
   /usr/lib/jvm:
@@ -237,7 +237,7 @@ parts:
     after: [makemkv-oss]
     plugin: make
     build-packages:
-    - openjdk-8-jre-headless # used to work out the right symlink dir in `override-build`
+    - openjdk-11-jre-headless # used to work out the right symlink dir in `override-build`
     - execstack
     source: http://www.makemkv.com/download/makemkv-bin-x.xx.x.tar.gz
     override-pull: |
@@ -249,7 +249,7 @@ parts:
 
       snapcraftctl build
 
-      JDK=$(find /usr/lib/jvm -type d -name "java-8-openjdk-*" | head -n1 | xargs basename)
+      JDK=$(find /usr/lib/jvm -type d -name "java-11-openjdk-*" | head -n1 | xargs basename)
       JDKBIN=../lib/jvm/$JDK/jre/bin
       for exec in java javaws jexec jjs; do
         ln -sf $JDKBIN/$exec $SNAPCRAFT_PART_INSTALL/usr/bin/$exec
@@ -270,12 +270,12 @@ parts:
       EOF
       chmod +x $SNAPCRAFT_PART_INSTALL/usr/bin/wget
     stage:
-    - -usr/lib/jvm/java-8-openjdk-*/jre/lib/security/cacerts
+    - -usr/lib/jvm/java-11-openjdk-*/jre/lib/security/cacerts
     organize:
       usr/share/MakeMKV: usr/share/MakeMKV.dist
     stage-packages:
     - libedit2
     - libjpeg-turbo8
     - libtinfo5
-    - openjdk-8-jre-headless
+    - openjdk-11-jre-headless
     - wget

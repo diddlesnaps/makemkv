@@ -15,6 +15,8 @@ architectures:
 layout:
   /etc/java-11-openjdk:
     bind: $SNAP/etc/java-11-openjdk
+  /etc/ld.so.cache:
+    bind-file: $SNAP_DATA/etc/ld.so.cache
   /usr/bin/ccextractor:
     bind-file: $SNAP/usr/bin/ccextractor
   /usr/bin/java:
@@ -45,15 +47,15 @@ plugs:
 
 hooks:
   install:
+    command-chain: [bin/desktop-launch]
     passthrough:
       environment:
         LD_LIBRARY_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP/usr/lib:$SNAP/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP/lib:$LD_LIBRARY_PATH
-      command-chain: [bin/desktop-launch]
   post-refresh:
+    command-chain: [bin/desktop-launch]
     passthrough:
       environment:
         LD_LIBRARY_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP/usr/lib:$SNAP/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP/lib:$LD_LIBRARY_PATH
-      command-chain: [bin/desktop-launch]
 
 apps:
   makemkv:

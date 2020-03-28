@@ -2,8 +2,7 @@
 
 # save the original LD_LIBRARY_PATH, and unset it to check the cache
 ORIGINAL_LD_LIBRARY_PATH="$LD_LIBRARY_PATH"
-LD_LIBRARY_PATH=""
-export LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=""
 
 # FINAL_BINARY should be set and exported to what the "real" final executable 
 # that's run is so we can check that
@@ -19,12 +18,7 @@ else
     # TODO: make this less of a hack?
     if ldd "$FINAL_BINARY" | grep "=> not found" | grep -q "=> not found"; then
         # regenerate the cache first
-        LD_LIBRARY_PATH=$ORIGINAL_LD_LIBRARY_PATH
-        export LD_LIBRARY_PATH
-        # "$SNAP/bin/build-ld-cache"
-        # # unset to continue executing the next command in the chain
-        # LD_LIBRARY_PATH=""
-        # export LD_LIBRARY_PATH
+        export LD_LIBRARY_PATH="$ORIGINAL_LD_LIBRARY_PATH"
     fi
 fi
 

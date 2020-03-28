@@ -1,9 +1,31 @@
 #!/bin/bash -ex
 
-# copying the conf dir from real /etc into $SNAP_DATA
-mkdir -p "$SNAP_DATA/etc/ld.so.conf.d"
-cp -r /etc/ld.so.conf.d/* "$SNAP_DATA/etc/ld.so.conf.d"
-cp /etc/ld.so.conf "$SNAP_DATA/etc/ld.so.conf"
+# VARIABLES
+###################################
+LDPATH=/etc/ld.so.conf.d
+LDCACHE=/etc/ld.so.conf.d/ld.so.cache
+LDCONF=/etc/ld/so.conf
+CHK1=`ls -d ${LDPATH}`
+CHK2=`ls ${LDCACHE}`
+DATE=`date +%F`
+###################################
+
+# copying the conf dir from real /etc into $SNAP_DATA; added some arguments for Solus' lack of needed dirs
+
+if [ ${CHK} != ${LDPATH} ]
+then
+  echo "Creating needed files..."
+  sleep 2
+  cp -r /etc/ld.so.conf.d/* "$SNAP_DATA/etc/ld.so.conf.d"
+  cp ${LDCONF} "$SNAP_DATA/etc/ld.so.conf"
+else
+  echo "Copying files to SNAP_DATA..."
+  sleep 2
+  mkdir -p ${LDPATH}
+  echo "# CREATED BY MAKEMKV SNAP ON ${DATE}" | tee ${LDPATH}/${LDCACHE}
+  cp -r /etc/ld.so.conf.d/* "$SNAP_DATA/etc/ld.so.conf.d"
+  cp /etc/ld.so.conf "$SNAP_DATA/etc/ld.so.conf"
+fi
 
 # delete empty entries in the LD_LIBRARY_PATH
 # i.e. change "/a/b/c:/1/2/3::/other" into "/a/b/c:/1/2/3:/other"

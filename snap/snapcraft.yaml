@@ -112,7 +112,7 @@ parts:
     - rsync
 
   libav:
-    source: https://ffmpeg.org/releases/ffmpeg-4.2.tar.xz
+    source: https://ffmpeg.org/releases/ffmpeg-4.2.2.tar.xz
     plugin: autotools
     build-packages:
     - libfdk-aac-dev
@@ -281,3 +281,24 @@ parts:
     - libtinfo5
     - openjdk-11-jre-headless
     - wget
+
+  cleanup:
+    after:
+    - ccextractor
+    - libav
+    - makemkv-bin
+    - makemkv-oss
+    - scripts
+    - snapcraft-preload
+    plugin: nil
+    # build-snaps: [kde-frameworks-5-core18]  # List all content-snaps you're using here
+    override-prime: |
+      set -eux
+      # for snap in "kde-frameworks-5-core18"; do  # List all content-snaps you're using here
+      #   cd "/snap/$snap/current" && find . -type f,l -exec rm -f "$SNAPCRAFT_PRIME/{}" "$SNAPCRAFT_PRIME/usr/{}" \;
+      # done
+      for CRUFT in bug lintian man; do
+        rm -rf $SNAPCRAFT_PRIME/usr/share/$CRUFT
+      done
+      find $SNAPCRAFT_PRIME/usr/share/doc/ -type f -not -name 'copyright' -delete
+      find $SNAPCRAFT_PRIME/usr/share -type d -empty -delete

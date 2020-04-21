@@ -16,13 +16,12 @@ jobs:
           | grep -E 'http://www.makemkv.com/download/makemkv-bin-[0-9]+\.[0-9]+\.[0-9]+\.tar\.gz' \
           | head -n1 \
           | sed -E -e 's|^.*\"http://www.makemkv.com/download/makemkv-bin-([0-9]+\.[0-9]+\.[0-9]+)\.tar\.gz\".*|\1|')"
-        EDGEVER="$(snap info makemkv | awk '$1 == "edge:" { print $2 }')"
+        EDGEVER="$(snap info makemkv | awk '$1 == "latest/edge:" { print $2 }')"
         if [ "$VERSION" != "$EDGEVER" ]; then
           echo "$(date -u --rfc-3339=seconds) Version $VERSION" >> .build.stamp
         fi
     - uses: stefanzweifel/git-auto-commit-action@v2.1.0
       with:
         commit_message: Trigger build for new version
-        branch: ${{ github.head_ref }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

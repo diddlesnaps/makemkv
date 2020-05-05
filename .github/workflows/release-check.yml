@@ -23,5 +23,6 @@ jobs:
     - uses: stefanzweifel/git-auto-commit-action@v2.1.0
       with:
         commit_message: Trigger build for new version
+        branch: master
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

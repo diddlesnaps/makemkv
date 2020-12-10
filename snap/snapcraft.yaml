@@ -110,9 +110,14 @@ parts:
       makemkv-launch: bin/makemkv-launch
     stage-packages:
     - rsync
+  
+  patches:
+    source: patches
+    plugin: dump
+    prime: [-*]
 
   libav:
-    source: https://ffmpeg.org/releases/ffmpeg-4.2.2.tar.xz
+    source: https://ffmpeg.org/releases/ffmpeg-4.3.1.tar.xz
     plugin: autotools
     build-packages:
     - libfdk-aac-dev
@@ -185,7 +190,7 @@ parts:
     - tesseract-ocr
 
   makemkv-oss:
-    after: [desktop-qt5, libav]
+    after: [patches, desktop-qt5, libav]
     plugin: autotools
     build-packages:
     - curl
@@ -208,6 +213,7 @@ parts:
       echo "$VERSION" > version
 
       curl --silent --show-error --location "http://www.makemkv.com/download/makemkv-oss-$VERSION.tar.gz" | tar xz --strip-components=1
+      patch -Np1 -i "$SNAPCRAFT_STAGE/patch.diff"
     override-build: |
       sed -i 's|Icon=.*|Icon=/usr/share/icons/hicolor/256x256/apps/makemkv.png|' makemkvgui/share/makemkv.desktop
       snapcraftctl build

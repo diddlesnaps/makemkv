@@ -1,12 +1,14 @@
-diff -ru src/makemkvgui/src/main.cpp b/makemkvgui/src/main.cpp
---- src/makemkvgui/src/main.cpp	2018-02-03 23:00:46.000000000 +0000
-+++ b/makemkvgui/src/main.cpp	2018-02-12 01:40:17.513799372 +0000
-@@ -51,7 +51,7 @@
- #endif
+diff -rU3 a/makemkvgui/src/main.cpp b/makemkvgui/src/main.cpp
+--- a/makemkvgui/src/main.cpp	2020-12-09 17:33:52.000000000 +0000
++++ b/makemkvgui/src/main.cpp	2020-12-10 18:00:40.889517098 +0000
+@@ -17,8 +17,10 @@
  
-     unsigned int errcode;
--    if (false==apc.Init('G',"makemkvcon",&errcode))
-+    if (false==apc.Init('G',":",&errcode))
-     {
-         QMessageBox::critical(NULL,UI_QSTRING(APP_CAPTION_MSG),UI_QSTRING(APP_INIT_FAILED));
-         return 1;
+ #include "mainwnd.h"
+ 
++#if defined(Q_OS_DARWIN) || defined(Q_OS_WIN)
+ #define aversion aversion002
+ extern "C" const unsigned int __cdecl aversion();
++#endif
+ 
+ #ifdef Q_OS_WIN
+ #include <objbase.h>

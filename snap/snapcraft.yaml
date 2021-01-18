@@ -7,6 +7,7 @@ grade: stable
 confinement: strict
 adopt-info: makemkv-oss
 base: core18
+compression: lzo
 
 architectures:
 - build-on: amd64
@@ -50,12 +51,12 @@ hooks:
     command-chain: [bin/desktop-launch]
     passthrough:
       environment:
-        LD_LIBRARY_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP/usr/lib:$SNAP/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP/lib:$LD_LIBRARY_PATH
+        LD_LIBRARY_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP/usr/lib:$SNAP/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP/lib
   post-refresh:
     command-chain: [bin/desktop-launch]
     passthrough:
       environment:
-        LD_LIBRARY_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP/usr/lib:$SNAP/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP/lib:$LD_LIBRARY_PATH
+        LD_LIBRARY_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP/usr/lib:$SNAP/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP/lib
 
 apps:
   makemkv:
@@ -90,7 +91,7 @@ apps:
     - bin/snapcraft-preload
     environment:
       FINAL_BINARY: $SNAP/usr/bin/makemkvcon.real
-      LD_LIBRARY_PATH: $SNAP/usr/lib:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP/lib:$SNAP/lib/$SNAPCRAFT_ARCH_TRIPLET:$LD_LIBRARY_PATH
+      LD_LIBRARY_PATH: $SNAP/usr/lib:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP/lib:$SNAP/lib/$SNAPCRAFT_ARCH_TRIPLET
     plugs:
     - hardware-observe
     - home
@@ -110,7 +111,7 @@ parts:
       makemkv-launch: bin/makemkv-launch
     stage-packages:
     - rsync
-  
+
   patches:
     source: patches
     plugin: dump

@@ -1,0 +1,32 @@
+#!/bin/sh -e
+if [ ! -f $SNAP_USER_DATA/.MakeMKV/settings.conf ]; then
+    mkdir -p $SNAP_USER_DATA/.MakeMKV
+
+    cat > $SNAP_USER_DATA/.MakeMKV/settings.conf <<SEOF
+#
+# MakeMKV settings file, written by MakeMKV v1.14.5 linux(x64-release)
+#
+
+app_DestinationDir = "$SNAP_REAL_HOME/movies"
+app_DestinationType = "2"
+app_Java = "/snap/makemkv/current/usr/bin/java"
+app_Key = ""
+app_PreferredLanguage = ""
+app_ccextractor = "/snap/makemkv/current/usr/bin/ccextractor"
+dvd_MinimumTitleLength = "300"
+sdf_Stop = ""
+SEOF
+
+else
+    if grep -q 'app_DestinationDir = ""' $SNAP_USER_DATA/.MakeMKV/settings.conf; then
+        sed -i -E 's|(app_DestinationDir = )""|\1"'"$SNAP_REAL_HOME/movies"'"|' $SNAP_USER_DATA/.MakeMKV/settings.conf
+    fi
+    if grep -q 'app_Java = ""' $SNAP_USER_DATA/.MakeMKV/settings.conf; then
+        sed -i -E 's|(app_Java = )""|\1"/snap/makemkv/current/usr/bin/java"|' $SNAP_USER_DATA/.MakeMKV/settings.conf
+    fi
+    if grep -q 'app_ccextractor = ""' $SNAP_USER_DATA/.MakeMKV/settings.conf; then
+        sed -i -E 's|(app_ccextractor = )""|\1"/snap/makemkv/current/usr/bin/ccextractor"|' $SNAP_USER_DATA/.MakeMKV/settings.conf
+    fi
+fi
+
+exec $@

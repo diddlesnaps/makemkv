@@ -64,6 +64,7 @@ apps:
     command-chain:
     - bin/desktop-launch
     - bin/check-ld-cache
+    - bin/makemkv-launch
     - bin/snapcraft-preload
     desktop: usr/share/applications/makemkv.desktop
     environment:
@@ -88,6 +89,7 @@ apps:
     command: usr/bin/makemkvcon
     command-chain:
     - bin/check-ld-cache
+    - bin/makemkv-launch
     - bin/snapcraft-preload
     environment:
       FINAL_BINARY: $SNAP/usr/bin/makemkvcon.real
@@ -259,7 +261,7 @@ parts:
       snapcraftctl build
 
       JDK=$(find /usr/lib/jvm -type d -name "java-11-openjdk-*" | head -n1 | xargs basename)
-      JDKBIN=../lib/jvm/$JDK/jre/bin
+      JDKBIN=../lib/jvm/$JDK/bin
       for exec in java javaws jexec jjs; do
         ln -sf $JDKBIN/$exec $SNAPCRAFT_PART_INSTALL/usr/bin/$exec
       done

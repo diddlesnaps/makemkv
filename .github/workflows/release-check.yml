@@ -22,8 +22,9 @@ jobs:
         if [ "$VERSION" != "$EDGEVER" ]; then
           echo "$(date -u --rfc-3339=seconds) Version $VERSION" >> .build.stamp
         fi
-    - uses: stefanzweifel/git-auto-commit-action@v2.1.0
+    - uses: stefanzweifel/git-auto-commit-action@v4
       with:
+        file_pattern: .build.stamp
         commit_message: Trigger build for new version
         branch: master
       env:

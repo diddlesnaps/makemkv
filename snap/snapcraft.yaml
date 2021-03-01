@@ -120,7 +120,7 @@ parts:
     prime: [-*]
 
   libav:
-    source: https://ffmpeg.org/releases/ffmpeg-4.3.1.tar.xz
+    source: https://ffmpeg.org/releases/ffmpeg-4.3.2.tar.xz
     plugin: autotools
     build-packages:
     - libfdk-aac-dev
@@ -224,18 +224,23 @@ parts:
     configflags:
     - --prefix=/usr
     stage-packages:
+    - libegl1-mesa
     - libexpat1
     - libgconf-2-4
+    - libgl1-mesa-glx
+    - libgles2-mesa
     - libqt5core5a
     - libqt5dbus5
     - libqt5gui5
     - libqt5widgets5
     - libqt5waylandclient5
     - libssl1.0.0
+    - libvulkan1
     - libwayland-client0
     - libwayland-cursor0
     - libx11-6
     - lsscsi
+    - mesa-vulkan-drivers
     - zlib1g
     prime:
     - -bin/ffmpeg

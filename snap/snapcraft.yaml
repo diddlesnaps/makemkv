@@ -6,20 +6,20 @@ description: |
 grade: stable
 confinement: strict
 adopt-info: makemkv-oss
-base: core18
+base: core20
 compression: lzo
 
 architectures:
 - build-on: amd64
 - build-on: i386
+- build-on: arm64
+- build-on: armhf
 
 layout:
   /etc/java-11-openjdk:
     bind: $SNAP/etc/java-11-openjdk
   /etc/ld.so.cache:
     bind-file: $SNAP_DATA/etc/ld.so.cache
-  /usr/bin/ccextractor:
-    bind-file: $SNAP/usr/bin/ccextractor
   /usr/bin/java:
     symlink: $SNAP/usr/lib/jvm/java-11-openjdk-amd64/bin/java
   /usr/bin/wget:
@@ -125,7 +125,7 @@ parts:
     build-packages:
     - libfdk-aac-dev
     - yasm
-    configflags:
+    autotools-configure-parameters:
     - --prefix=/usr
     - --enable-static
     - --disable-shared
@@ -141,6 +141,8 @@ parts:
     source: https://github.com/diddledan/snapcraft-preload.git
     source-branch: semaphore-support
     plugin: cmake
+    cmake-parameters:
+    - -DCMAKE_INSTALL_PREFIX=/
     build-packages:
     - gcc-multilib
     - g++-multilib
@@ -171,27 +173,6 @@ parts:
     - qtwayland5
     - locales-all
 
-  ccextractor:
-    source: https://github.com/CCExtractor/ccextractor/archive/v0.88.tar.gz
-    source-subdir: src
-    plugin: cmake
-    configflags:
-    - -DCMAKE_INSTALL_PREFIX=/usr
-    build-packages:
-    - libcurl4-gnutls-dev
-    - libglew-dev
-    - libglfw3-dev
-    - libleptonica-dev
-    - libtesseract-dev
-    - tesseract-ocr
-    stage-packages:
-    - libcurl3-gnutls
-    - libglew2.0
-    - libglu1-mesa
-    - liblept5
-    - libtesseract4
-    - tesseract-ocr
-
   makemkv-oss:
     after: [patches, desktop-qt5, libav]
     plugin: autotools
@@ -221,7 +202,7 @@ parts:
       sed -i 's|Icon=.*|Icon=/usr/share/icons/hicolor/256x256/apps/makemkv.png|' makemkvgui/share/makemkv.desktop
       snapcraftctl build
       cp version $SNAPCRAFT_PART_INSTALL/version
-    configflags:
+    autotools-configure-parameters:
     - --prefix=/usr
     stage-packages:
     - libegl1-mesa
@@ -234,7 +215,7 @@ parts:
     - libqt5gui5
     - libqt5widgets5
     - libqt5waylandclient5
-    - libssl1.0.0
+    - libssl1.1
     - libvulkan1
     - libwayland-client0
     - libwayland-cursor0
@@ -298,7 +279,6 @@ parts:
 
   cleanup:
     after:
-    - ccextractor
     - libav
     - makemkv-bin
     - makemkv-oss

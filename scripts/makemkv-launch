@@ -12,7 +12,6 @@ app_DestinationType = "2"
 app_Java = "/snap/makemkv/current/usr/bin/java"
 app_Key = ""
 app_PreferredLanguage = ""
-app_ccextractor = "/snap/makemkv/current/usr/bin/ccextractor"
 dvd_MinimumTitleLength = "300"
 sdf_Stop = ""
 SEOF
@@ -23,9 +22,6 @@ else
     fi
     if grep -q 'app_Java = ""' $SNAP_USER_DATA/.MakeMKV/settings.conf; then
         sed -i -E 's|(app_Java = )""|\1"/snap/makemkv/current/usr/bin/java"|' $SNAP_USER_DATA/.MakeMKV/settings.conf
-    fi
-    if grep -q 'app_ccextractor = ""' $SNAP_USER_DATA/.MakeMKV/settings.conf; then
-        sed -i -E 's|(app_ccextractor = )""|\1"/snap/makemkv/current/usr/bin/ccextractor"|' $SNAP_USER_DATA/.MakeMKV/settings.conf
     fi
 fi
 

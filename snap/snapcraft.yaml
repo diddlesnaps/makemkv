@@ -267,7 +267,7 @@ parts:
       EOF
       chmod +x $SNAPCRAFT_PART_INSTALL/usr/bin/wget
     stage:
-    - -usr/lib/jvm/java-11-openjdk-*/jre/lib/security/cacerts
+    - -usr/lib/jvm/java-11-openjdk-*/lib/security/cacerts
     organize:
       usr/share/MakeMKV: usr/share/MakeMKV.dist
     stage-packages:

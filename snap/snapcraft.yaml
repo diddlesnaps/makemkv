@@ -143,8 +143,11 @@ parts:
     cmake-parameters:
     - -DCMAKE_INSTALL_PREFIX=/
     build-packages:
-    - gcc-multilib
-    - g++-multilib
+    - gcc
+    - g++
+    - on amd64:
+      - gcc-multilib
+      - g++-multilib
     stage-packages:
     - on amd64:
       - lib32stdc++6

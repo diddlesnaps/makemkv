@@ -17,14 +17,14 @@ architectures:
 layout:
   /etc/java-11-openjdk:
     bind: $SNAP/etc/java-11-openjdk
-  /etc/ld.so.cache:
-    bind-file: $SNAP_DATA/etc/ld.so.cache
   /usr/bin/java:
     symlink: $SNAP/usr/lib/jvm/java-11-openjdk-amd64/bin/java
   /usr/bin/wget:
     bind-file: $SNAP/usr/bin/wget
   /usr/lib/jvm:
     bind: $SNAP/usr/lib/jvm
+  /usr/lib/x86_64-linux-gnu/libcurl.so.4:
+    symlink: $SNAP/usr/lib/x86_64-linux-gnu/libcurl.so.4
   $SNAP/usr/share/MakeMKV:
     bind: $SNAP_DATA/usr/share/MakeMKV
 
@@ -62,7 +62,6 @@ apps:
     command: usr/bin/makemkv
     command-chain:
     - bin/desktop-launch
-    - bin/check-ld-cache
     - bin/makemkv-launch
     - bin/snapcraft-preload
     desktop: usr/share/applications/makemkv.desktop
@@ -87,7 +86,6 @@ apps:
   makemkvcon:
     command: usr/bin/makemkvcon
     command-chain:
-    - bin/check-ld-cache
     - bin/makemkv-launch
     - bin/snapcraft-preload
     environment:
@@ -180,6 +178,7 @@ parts:
     plugin: autotools
     build-packages:
     - curl
+    - libcurl4-openssl-dev
     - libexpat1-dev
     - libegl1-mesa-dev
     - libgl1-mesa-dev
@@ -207,6 +206,7 @@ parts:
     autotools-configure-parameters:
     - --prefix=/usr
     stage-packages:
+    - libcurl4
     - libegl1-mesa
     - libexpat1
     - libgconf-2-4

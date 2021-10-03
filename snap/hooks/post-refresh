@@ -2,5 +2,3 @@
 
 mkdir -p "$SNAP_DATA/usr/share/MakeMKV"
 "$SNAP/usr/bin/rsync" -r --delete "$SNAP/usr/share/MakeMKV.dist/" "$SNAP_DATA/usr/share/MakeMKV/"
-
-"$SNAP/bin/build-ld-cache"

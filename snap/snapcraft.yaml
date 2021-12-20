@@ -238,9 +238,9 @@ parts:
     build-packages:
     - openjdk-11-jre-headless # used to work out the right symlink dir in `override-build`
     - execstack
-    source: http://www.makemkv.com/download/makemkv-bin-x.xx.x.tar.gz
+    source: https://www.makemkv.com/download/makemkv-bin-x.xx.x.tar.gz
     override-pull: |
-      curl --silent --show-error --location "http://www.makemkv.com/download/makemkv-bin-$(cat "$SNAPCRAFT_STAGE/version").tar.gz" | tar xz --strip-components=1
+      curl --silent --show-error --location "https://www.makemkv.com/download/makemkv-bin-$(cat "$SNAPCRAFT_STAGE/version").tar.gz" | tar xz --strip-components=1
     override-build: |
       mkdir tmp && touch tmp/eula_accepted
       execstack -c bin/amd64/makemkvcon

@@ -65,8 +65,6 @@ apps:
     - bin/makemkv-launch
     - bin/snapcraft-preload
     desktop: usr/share/applications/makemkv.desktop
-    environment:
-      FINAL_BINARY: $SNAP/usr/bin/makemkv
     plugs:
     - desktop
     - desktop-legacy
@@ -89,7 +87,6 @@ apps:
     - bin/makemkv-launch
     - bin/snapcraft-preload
     environment:
-      FINAL_BINARY: $SNAP/usr/bin/makemkvcon.real
       LD_LIBRARY_PATH: $SNAP/usr/lib:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP/lib:$SNAP/lib/$SNAPCRAFT_ARCH_TRIPLET
     plugs:
     - hardware-observe
@@ -105,8 +102,6 @@ parts:
     source: scripts
     plugin: dump
     organize:
-      build-ld-cache: bin/build-ld-cache
-      check-ld-cache: bin/check-ld-cache
       makemkv-launch: bin/makemkv-launch
     stage-packages:
     - rsync

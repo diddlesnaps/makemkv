@@ -7,7 +7,7 @@
 <p align="center"><b>This is the snap for MakeMKV</b>, <i>"Backup your Bluray and DVD discs"</i>. It works on Ubuntu, Fedora, Debian, and other major Linux
 distributions.</p>
 
-[![Snap Status](https://build.snapcraft.io/badge/diddlesnaps/makemkv.svg)](https://build.snapcraft.io/user/diddlesnaps/makemkv)
+[![MakeMKV](https://snapcraft.io/makemkv/badge.svg)](https://snapcraft.io/makemkv)
 
 
 ## Install

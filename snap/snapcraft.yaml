@@ -14,6 +14,9 @@ architectures:
 - build-on: arm64
 - build-on: armhf
 
+assumes:
+  - command-chain
+  
 layout:
   /etc/java-11-openjdk:
     bind: $SNAP/etc/java-11-openjdk
@@ -64,6 +67,7 @@ apps:
     - bin/desktop-launch
     - bin/makemkv-launch
     - bin/snapcraft-preload
+    - bin/homeishome-launch 
     desktop: usr/share/applications/makemkv.desktop
     plugs:
     - desktop
@@ -98,6 +102,12 @@ apps:
     - removable-media
 
 parts:
+ 
+  homeishome-launch:
+    plugin: nil
+    stage-snaps:
+      - homeishome-launch   
+      
   scripts:
     source: scripts
     plugin: dump

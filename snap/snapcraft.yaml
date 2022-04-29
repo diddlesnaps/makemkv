@@ -44,6 +44,8 @@ plugs:
     default-provider: gtk-common-themes:icon-themes
     interface: content
     target: $SNAP/data-dir/icons
+  shared-memory:
+    private: true
 
 hooks:
   install:
@@ -63,7 +65,6 @@ apps:
     command-chain:
     - bin/desktop-launch
     - bin/makemkv-launch
-    - bin/snapcraft-preload
     desktop: usr/share/applications/makemkv.desktop
     plugs:
     - desktop
@@ -85,7 +86,6 @@ apps:
     command: usr/bin/makemkvcon
     command-chain:
     - bin/makemkv-launch
-    - bin/snapcraft-preload
     environment:
       LD_LIBRARY_PATH: $SNAP/usr/lib:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP/lib:$SNAP/lib/$SNAPCRAFT_ARCH_TRIPLET
     plugs:
@@ -129,22 +129,6 @@ parts:
     prime:
     - -**/*.a
 
-  snapcraft-preload:
-    source: https://github.com/diddledan/snapcraft-preload.git
-    source-branch: semaphore-support
-    plugin: cmake
-    cmake-parameters:
-    - -DCMAKE_INSTALL_PREFIX=/
-    build-packages:
-    - gcc
-    - g++
-    - on amd64:
-      - gcc-multilib
-      - g++-multilib
-    stage-packages:
-    - on amd64:
-      - lib32stdc++6
-
   desktop-qt5:
     source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
     source-subdir: qt
@@ -181,10 +165,10 @@ parts:
     - qtbase5-dev
     - tar
     - zlib1g-dev
-    source: http://www.makemkv.com/download/makemkv-oss-x.xx.x.tar.gz
+    source: https://www.makemkv.com/download/makemkv-oss-x.xx.x.tar.gz
     override-pull: |
       VERSION="$(curl --silent --show-error --location \
-        'https://makemkv.com/forum/viewtopic.php?f=3&t=224' \
+        'https://www.makemkv.com/forum/viewtopic.php?f=3&t=224' \
         | grep -E 'https?://www.makemkv.com/download/makemkv-bin-[0-9]+\.[0-9]+\.[0-9]+\.tar\.gz' \
         | head -n1 | sed -E -e \
           's|^.*\"https?://www.makemkv.com/download/makemkv-bin-([0-9]+\.[0-9]+\.[0-9]+)\.tar\.gz\".*|\1|')"
@@ -249,14 +233,6 @@ parts:
         ln -sf $JDKBIN/$exec $SNAPCRAFT_PART_INSTALL/usr/bin/$exec
       done
 
-      mv $SNAPCRAFT_PART_INSTALL/usr/bin/makemkvcon $SNAPCRAFT_PART_INSTALL/usr/bin/makemkvcon.real
-      mkdir -p $SNAPCRAFT_PART_INSTALL/usr/bin
-      cat <<EOF > $SNAPCRAFT_PART_INSTALL/usr/bin/makemkvcon
-      #!/bin/sh
-      exec \$SNAP/bin/snapcraft-preload /usr/bin/makemkvcon.real "\$@"
-      EOF
-      chmod +x $SNAPCRAFT_PART_INSTALL/usr/bin/makemkvcon
-
       mv $SNAPCRAFT_PART_INSTALL/usr/bin/wget $SNAPCRAFT_PART_INSTALL/usr/bin/wget.real
       cat <<EOF > $SNAPCRAFT_PART_INSTALL/usr/bin/wget
       #!/bin/sh
@@ -265,6 +241,7 @@ parts:
       chmod +x $SNAPCRAFT_PART_INSTALL/usr/bin/wget
     stage:
     - -usr/lib/jvm/java-11-openjdk-*/lib/security/cacerts
+    - -usr/lib/jvm/java-11-openjdk-*/lib/security/blacklisted.certs
     organize:
       usr/share/MakeMKV: usr/share/MakeMKV.dist
     stage-packages:
@@ -280,7 +257,6 @@ parts:
     - makemkv-bin
     - makemkv-oss
     - scripts
-    - snapcraft-preload
     plugin: nil
     # build-snaps: [kde-frameworks-5-core18]  # List all content-snaps you're using here
     override-prime: |

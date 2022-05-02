@@ -14,7 +14,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -yqq snapd
-        VERSION="$(curl --silent --show-error --location 'https://makemkv.com/forum/viewtopic.php?f=3&t=224' \
+        VERSION="$(curl --silent --show-error --location 'https://www.makemkv.com/forum/viewtopic.php?f=3&t=224' \
           | grep -E 'https?://www.makemkv.com/download/makemkv-bin-[0-9]+\.[0-9]+\.[0-9]+\.tar\.gz' \
           | head -n1 \
           | sed -E -e 's|^.*\"https?://www.makemkv.com/download/makemkv-bin-([0-9]+\.[0-9]+\.[0-9]+)\.tar\.gz\".*|\1|')"

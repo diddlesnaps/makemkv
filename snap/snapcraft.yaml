@@ -9,6 +9,9 @@ adopt-info: makemkv-oss
 base: core20
 compression: lzo
 
+assumes:
+- snapd2.55.3
+
 architectures:
 - build-on: amd64
 - build-on: arm64

@@ -6,7 +6,7 @@ description: |
 grade: stable
 confinement: strict
 adopt-info: makemkv-oss
-base: core20
+base: core22
 compression: lzo
 
 assumes:
@@ -18,10 +18,10 @@ architectures:
 - build-on: armhf
 
 layout:
-  /etc/java-11-openjdk:
-    bind: $SNAP/etc/java-11-openjdk
+  /etc/java-18-openjdk:
+    bind: $SNAP/etc/java-18-openjdk
   /usr/bin/java:
-    symlink: $SNAP/usr/lib/jvm/java-11-openjdk-amd64/bin/java
+    symlink: $SNAP/usr/lib/jvm/java-18-openjdk-amd64/bin/java
   /usr/bin/wget:
     bind-file: $SNAP/usr/bin/wget
   /usr/lib/jvm:
@@ -53,14 +53,12 @@ plugs:
 hooks:
   install:
     command-chain: [bin/desktop-launch]
-    passthrough:
-      environment:
-        LD_LIBRARY_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP/usr/lib:$SNAP/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP/lib
+    environment:
+      LD_LIBRARY_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP/usr/lib:$SNAP/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP/lib
   post-refresh:
     command-chain: [bin/desktop-launch]
-    passthrough:
-      environment:
-        LD_LIBRARY_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP/usr/lib:$SNAP/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP/lib
+    environment:
+      LD_LIBRARY_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP/usr/lib:$SNAP/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP/lib
 
 apps:
   makemkv:
@@ -109,13 +107,8 @@ parts:
     stage-packages:
     - rsync
 
-  patches:
-    source: patches
-    plugin: dump
-    prime: [-*]
-
   libav:
-    source: https://ffmpeg.org/releases/ffmpeg-4.3.2.tar.xz
+    source: https://ffmpeg.org/releases/ffmpeg-5.1.2.tar.xz
     plugin: autotools
     build-packages:
     - libfdk-aac-dev
@@ -127,7 +120,7 @@ parts:
     - --enable-pic
     - --enable-libfdk-aac
     stage-packages:
-    - libfdk-aac1
+    - libfdk-aac2
     - libxcb-shape0
     prime:
     - -**/*.a
@@ -142,21 +135,20 @@ parts:
     - dpkg-dev
     stage-packages:
     - libxkbcommon0
-    - ttf-ubuntu-font-family
+    - fonts-ubuntu
     - dmz-cursor-theme
     - light-themes
     - adwaita-icon-theme
-    - gnome-themes-standard
     - shared-mime-info
     - libqt5gui5
-    - libgtk2.0-0
-    - libgdk-pixbuf2.0-0
+    - libgtk-3-0
+    - libgdk-pixbuf-2.0-0
     - libqt5svg5 # for loading icon themes which are svg
     - qtwayland5
     - locales-all
 
   makemkv-oss:
-    after: [patches, desktop-qt5, libav]
+    after: [desktop-qt5, libav]
     plugin: autotools
     build-packages:
     - curl
@@ -176,15 +168,14 @@ parts:
         | head -n1 | sed -E -e \
           's|^.*\"https?://www.makemkv.com/download/makemkv-bin-([0-9]+\.[0-9]+\.[0-9]+)\.tar\.gz\".*|\1|')"
       echo "Setting snap version to '$VERSION'"
-      snapcraftctl set-version "$VERSION"
-      echo "$VERSION" > version
+      craftctl set version="$VERSION"
+      echo "$VERSION" > "$SNAPCRAFT_PROJECT_DIR/version"
 
       curl --silent --show-error --location "https://www.makemkv.com/download/makemkv-oss-$VERSION.tar.gz" | tar xz --strip-components=1
-      patch -Np1 -i "$SNAPCRAFT_STAGE/patch.diff"
+      patch -Np1 -i "$SNAPCRAFT_PROJECT_DIR/patches/patch.diff"
     override-build: |
       sed -i 's|Icon=.*|Icon=/usr/share/icons/hicolor/256x256/apps/makemkv.png|' makemkvgui/share/makemkv.desktop
-      snapcraftctl build
-      cp version $SNAPCRAFT_PART_INSTALL/version
+      craftctl default
     autotools-configure-parameters:
     - --prefix=/usr
     stage-packages:
@@ -199,7 +190,7 @@ parts:
     - libqt5gui5
     - libqt5widgets5
     - libqt5waylandclient5
-    - libssl1.1
+    - libssl3
     - libvulkan1
     - libwayland-client0
     - libwayland-cursor0
@@ -218,40 +209,40 @@ parts:
     after: [makemkv-oss]
     plugin: make
     build-packages:
-    - openjdk-11-jre-headless # used to work out the right symlink dir in `override-build`
+    - openjdk-18-jre-headless # used to work out the right symlink dir in `override-build`
     - execstack
     source: https://www.makemkv.com/download/makemkv-bin-x.xx.x.tar.gz
-    override-pull: |
-      curl --silent --show-error --location "https://www.makemkv.com/download/makemkv-bin-$(cat "$SNAPCRAFT_STAGE/version").tar.gz" | tar xz --strip-components=1
+    override-pull: ''
     override-build: |
+      curl --silent --show-error --location "https://www.makemkv.com/download/makemkv-bin-$(cat "$SNAPCRAFT_PROJECT_DIR/version").tar.gz" | tar xz --strip-components=1
       mkdir tmp && touch tmp/eula_accepted
       execstack -c bin/amd64/makemkvcon
       execstack -c bin/i386/makemkvcon
 
-      snapcraftctl build
+      craftctl default
 
-      JDK=$(find /usr/lib/jvm -type d -name "java-11-openjdk-*" | head -n1 | xargs basename)
+      JDK=$(find /usr/lib/jvm -type d -name "java-18-openjdk-*" | head -n1 | xargs basename)
       JDKBIN=../lib/jvm/$JDK/bin
       for exec in java javaws jexec jjs; do
         ln -sf $JDKBIN/$exec $SNAPCRAFT_PART_INSTALL/usr/bin/$exec
       done
 
       mv $SNAPCRAFT_PART_INSTALL/usr/bin/wget $SNAPCRAFT_PART_INSTALL/usr/bin/wget.real
-      cat <<EOF > $SNAPCRAFT_PART_INSTALL/usr/bin/wget
+      cat <<'EOF' > $SNAPCRAFT_PART_INSTALL/usr/bin/wget
       #!/bin/sh
-      exec \$SNAP/usr/bin/wget.real --no-config "\$@"
+      exec $SNAP/usr/bin/wget.real --no-config "$@"
       EOF
       chmod +x $SNAPCRAFT_PART_INSTALL/usr/bin/wget
     stage:
-    - -usr/lib/jvm/java-11-openjdk-*/lib/security/cacerts
-    - -usr/lib/jvm/java-11-openjdk-*/lib/security/blacklisted.certs
+    - -usr/lib/jvm/java-18-openjdk-*/lib/security/cacerts
+    - -usr/lib/jvm/java-18-openjdk-*/lib/security/blacklisted.certs
     organize:
       usr/share/MakeMKV: usr/share/MakeMKV.dist
     stage-packages:
     - libedit2
     - libjpeg-turbo8
-    - libtinfo5
-    - openjdk-11-jre-headless
+    - libtinfo6
+    - openjdk-18-jre-headless
     - wget
 
   cleanup:
@@ -265,10 +256,10 @@ parts:
     override-prime: |
       set -eux
       # for snap in "kde-frameworks-5-core18"; do  # List all content-snaps you're using here
-      #   cd "/snap/$snap/current" && find . -type f,l -exec rm -f "$SNAPCRAFT_PRIME/{}" "$SNAPCRAFT_PRIME/usr/{}" \;
+      #   cd "/snap/$snap/current" && find . -type f,l -exec rm -f "$CRAFT_PRIME/{}" "$CRAFT_PRIME/usr/{}" \;
       # done
       for CRUFT in bug lintian man; do
-        rm -rf $SNAPCRAFT_PRIME/usr/share/$CRUFT
+        rm -rf $CRAFT_PRIME/usr/share/$CRUFT
       done
-      find $SNAPCRAFT_PRIME/usr/share/doc/ -type f -not -name 'copyright' -delete
-      find $SNAPCRAFT_PRIME/usr/share -type d -empty -delete
+      find $CRAFT_PRIME/usr/share/doc/ -type f -not -name 'copyright' -delete
+      find $CRAFT_PRIME/usr/share -type d -empty -delete

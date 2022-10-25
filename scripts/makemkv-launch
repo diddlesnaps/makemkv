@@ -7,7 +7,7 @@ if [ ! -f $SNAP_USER_DATA/.MakeMKV/settings.conf ]; then
 # MakeMKV settings file, written by MakeMKV v1.14.5 linux(x64-release)
 #
 
-app_DestinationDir = "$SNAP_REAL_HOME/movies"
+app_DestinationDir = "$SNAP_REAL_HOME"
 app_DestinationType = "2"
 app_Java = "/snap/makemkv/current/usr/bin/java"
 app_Key = ""
@@ -18,7 +18,7 @@ SEOF
 
 else
     if grep -q 'app_DestinationDir = ""' $SNAP_USER_DATA/.MakeMKV/settings.conf; then
-        sed -i -E 's|(app_DestinationDir = )""|\1"'"$SNAP_REAL_HOME/movies"'"|' $SNAP_USER_DATA/.MakeMKV/settings.conf
+        sed -i -E 's|(app_DestinationDir = )""|\1"'"$SNAP_REAL_HOME"'"|' $SNAP_USER_DATA/.MakeMKV/settings.conf
     fi
     if grep -q 'app_Java = ""' $SNAP_USER_DATA/.MakeMKV/settings.conf; then
         sed -i -E 's|(app_Java = )""|\1"/snap/makemkv/current/usr/bin/java"|' $SNAP_USER_DATA/.MakeMKV/settings.conf

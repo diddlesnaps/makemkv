@@ -13,3 +13,4 @@ jobs:
     - uses: diddlesnaps/snapcraft-review-tools-action@v1
       with:
         snap: ${{ steps.build.outputs.snap }}
+        plugs: ./declarations/plugs.json

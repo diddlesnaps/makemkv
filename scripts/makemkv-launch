@@ -9,7 +9,7 @@ if [ ! -f $SNAP_USER_DATA/.MakeMKV/settings.conf ]; then
 
 app_DestinationDir = "$SNAP_REAL_HOME"
 app_DestinationType = "2"
-app_Java = "/snap/makemkv/current/usr/bin/java"
+app_Java = "$SNAP/usr/bin/java"
 app_Key = ""
 app_PreferredLanguage = ""
 dvd_MinimumTitleLength = "300"
@@ -21,7 +21,7 @@ else
         sed -i -E 's|(app_DestinationDir = )""|\1"'"$SNAP_REAL_HOME"'"|' $SNAP_USER_DATA/.MakeMKV/settings.conf
     fi
     if grep -q 'app_Java = ""' $SNAP_USER_DATA/.MakeMKV/settings.conf; then
-        sed -i -E 's|(app_Java = )""|\1"/snap/makemkv/current/usr/bin/java"|' $SNAP_USER_DATA/.MakeMKV/settings.conf
+        sed -i -E "s|(app_Java = )\"\"|\\1\"$SNAP/usr/bin/java\"|" "$SNAP_USER_DATA/.MakeMKV/settings.conf"
     fi
 fi
 
